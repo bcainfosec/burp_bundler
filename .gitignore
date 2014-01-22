@@ -1,6 +1,5 @@
-*.class
-
-# Package Files #
+dist
+dist/*
+graphics
+graphics/*
 *.jar
-*.war
-*.ear

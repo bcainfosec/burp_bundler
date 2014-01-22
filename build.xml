@@ -1,0 +1,61 @@
+<project name="Burp Suite App Bundler" default="setHighRes" basedir=".">
+  <description>
+    Create a java app bundle for Burp Suite Pro
+  </description>
+  <property environment="env" />
+  <property name="bundle.icon" location="burp.icns"/>
+  <property name="dist" location="dist"/>
+  <property name="burp.name" value="Burp Suite Professional"/>
+  <property name="burp.version" value="1.5.20"/>
+  <target name="init">
+    <echo message="Java Version: ${java.version}"/>
+    <fail message="Unsupported Java version: ${java.version}. Make sure that the version of the Java is 1.7.">
+      <condition>
+        <not>
+          <or>
+            <contains string="${java.version}" substring="1.7" casesensitive="false" />
+          </or>
+        </not>
+      </condition>
+    </fail>
+    <taskdef
+      name="bundleapp"
+      classname="com.oracle.appbundler.AppBundlerTask"
+      classpath="../../lib/appbundler-1.0.jar" />
+
+    <mkdir dir="${dist}"/>
+  </target>
+  <target name="clean">
+    <delete dir="${dist}"/>
+  </target>
+  <target name="bundle" depends="clean,init">
+    <bundleapp
+      outputdirectory="${dist}"
+      name="${burp.name}"
+      displayname="${burp.name}"
+      identifier="burp.StartBurp"
+      icon="${bundle.icon}"
+      shortversion="${burp.version}"
+      applicationCategory="public.app-category.developer-tools"
+      mainclassname="burp.StartBurp">
+      <classpath file="burpsuite_pro_v${burp.version}.jar" />
+      <option value="-Dapple.awt.application.name=${burp.name}"/>
+      <option value="-Dapple.laf.useScreenMenuBar=true"/>
+      <option value="-Dcom.apple.macos.useScreenMenuBar=true"/>
+      <option value="-Dcom.apple.macos.use-file-dialog-packages=true"/>
+      <option value="-Dcom.apple.smallTabs=true"/>
+      <option value="-Xdock:icon=Contents/Resources/${bundle.icon}"/>
+      <option value="-Xdock:name=${burp.name}"/>
+      <option value="-Xms512m"/>
+      <option value="-Xmx2g"/>
+      <option value="-XX:MaxPermSize=256m"/>
+    </bundleapp>
+  </target>
+  <target name="setHighRes" depends="bundle">
+    <exec executable="/usr/libexec/PlistBuddy">
+      <arg value="-c"/>
+      <arg value="Add :NSHighResolutionCapable string &quot;True&quot;"/>
+      <arg value="${dist}/Burp Suite Professional.app/Contents/Info.plist"/>
+    </exec>
+  </target>
+</project>
